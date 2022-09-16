@@ -1,57 +1,62 @@
-import { useState } from "react";
-
-const Display = ({anecdote, votes}) => {
+const Header = (props) =>{
   return(
-    <>
-      <blockquote>{anecdote}</blockquote>
-      <div>This anecdote has {votes} Votes</div>
-    </>
-  );
+    <h1>{props.course.name}</h1>
+  )
 };
 
-const App = ()=>{
+const Part = (props)=>{
+  return(
+    <p>
+      {props.part} {props.exercises}
+    </p>
+  )
+};
 
-  const anecdotes = [
-    'If it hurts, do it more often.',
-    'Adding manpower to a late software project makes it later!',
-    'The first 90 percent of the code accounts for the first 10 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
-    'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
-    'Premature optimization is the root of all evil.',
-    'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
-    'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.'
-  ];
-
-  const [currAnecdote, setAnnecdote] = useState(0);
-  
-  const allVotes = [];
-  for (const i in anecdotes){
-    allVotes[i] = 0;
-  }
-
-  const [votes, setVotes] = useState(allVotes);
-
-
-  const handleRandomClick = () => setAnnecdote(Math.floor(Math.random() * anecdotes.length));
-  
-  const handleVoteClick = () => {
-    const newVotes = [...votes];
-    newVotes[currAnecdote] += 1;
-    setVotes(newVotes);
-  };
-
-  const maxVotesAnecdote = ()=> votes.indexOf(Math.max(...votes))
-
+const Content = (props) =>{
   return(
     <>
-      <h2>Anecdotes of the Day</h2>
-      <Display anecdote={anecdotes[currAnecdote]} votes={votes[currAnecdote]} />
-      <button onClick={handleRandomClick}>Next Anecdote</button>
-      <button onClick={handleVoteClick}>Vote</button>
-
-      <h2>Anecdote with most votes</h2>
-      <Display anecdote={anecdotes[maxVotesAnecdote()]} votes={votes[maxVotesAnecdote()]} />
+    <Part part={props.parts[0].name} exercises={props.parts[0].exercises}/>
+    <Part part={props.parts[1].name} exercises={props.parts[1].exercises}/>
+    <Part part={props.parts[2].name} exercises={props.parts[2].exercises}/>
     </>
-  );
+  )
+};
+
+const Total = (props) => {
+  return(
+    <p>Number of exercises {props.parts[0].exercises + props.parts[1].exercises + props.parts[2].exercises}</p>
+  )
+};
+
+const App = () =>{
+
+  const course = {
+    name: 'Half Stack application development',
+
+    parts: [
+      {
+        name: 'State of a component',
+        exercises : 14,
+      },
+  
+      {
+        name: 'Using props to pass data',
+        exercises : 7,
+      },
+  
+      {
+        name: 'Fundamentals Of React',
+        exercises : 10,
+      },
+    ],
+  }
+  return (
+    <div>
+      <Header course={course}/>
+      <Content parts={course.parts}/>
+      <Total parts={course.parts}/>
+    </div>
+  )
 }
 
-export default App;
+export default App
