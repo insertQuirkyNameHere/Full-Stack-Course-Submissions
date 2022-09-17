@@ -1,0 +1,82 @@
+import { useState } from "react";
+
+import Person from './components/Person'
+import Search from './components/Search'
+
+const App = () => {
+  const [persons, setPersons] = useState([
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 },
+  ]);
+
+  const [newName, setNewName] = useState('');
+  const [newNum, setNewNum] = useState('');
+  const [showAll, setShowAll] = useState(true);
+  const [searchName, setSearchName] = useState('');
+
+  const addName = (e)=>{
+    e.preventDefault();
+    if(persons.find((person) => person.name.toUpperCase() === newName.toUpperCase())){
+      alert(`${newName} is already in the phonebook`);
+      setNewName('');
+    }
+    else{
+      const newNameObj = {name: newName, number:newNum, id:persons.length+1};
+      setPersons(persons.concat(newNameObj));
+      setNewName('');
+      setNewNum('');
+    }
+  }
+
+  const handleNameChange = (e) =>{
+    setNewName(e.target.value);
+  }
+
+  const handleNumberChange = (e)=>{
+    setNewNum(e.target.value);
+  }
+
+  const handleSearchChange = (e)=>{
+    setSearchName(e.target.value);
+  }
+  
+  const personsToShow = showAll
+    ? persons
+    : persons.filter(person => person.name.toUpperCase() === searchName.toUpperCase());
+  
+  return (
+    <div>
+      <h1>Phonebook</h1>
+      <Search handleChange={handleSearchChange} value={searchName} handleSubmit={() => setShowAll(!showAll)} showAll={showAll} />
+      <h2>Add new</h2>
+      <form onSubmit={addName}>
+        <div>
+          <label>
+            Name:
+            <input type="text" onChange={handleNameChange} value={newName} required={true}></input>
+          </label>
+        </div>
+
+        <div>
+          <label>
+            Number:
+            <input type="text" onChange={handleNumberChange} value={newNum} required={true}></input>
+          </label>
+        </div>
+
+
+        <div>
+          <button type="submit">Add</button>
+        </div>
+      </form>
+
+      <h2>Numbers</h2>
+      {personsToShow.map(person =><Person name={person.name} number={person.number} key={person.id}></Person>)}
+
+    </div>  
+  );
+};
+
+export default App;
