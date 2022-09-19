@@ -5,6 +5,8 @@ import Search from './components/Search'
 
 import services from './services/app'
 
+import './css/index.css'
+
 const App = () => {
   const [persons, setPersons] = useState([]);
 
