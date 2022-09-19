@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import axios from 'axios'
 
 import Person from './components/Person'
 import Search from './components/Search'
+
+import services from './services/app'
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -13,26 +14,38 @@ const App = () => {
   const [searchName, setSearchName] = useState('');
 
   useEffect( ()=>{
-    axios
-      .get('http://localhost:3001/persons')
-      .then(
-        response => {
-          setPersons(response.data);
-        }
-      );
+    services
+      .getAll()
+      .then( (persons)=> {
+        setPersons(persons);
+      })
   }, []);
 
   const addName = (e)=>{
     e.preventDefault();
-    if(persons.find((person) => person.name.toUpperCase() === newName.toUpperCase())){
-      alert(`${newName} is already in the phonebook`);
-      setNewName('');
+    const foundPerson = persons.find((person) => person.name.toUpperCase() === newName.toUpperCase());
+    if(foundPerson){
+      if(window.confirm(`${newName} is already in the phonebook. Update details?`)){
+        const newPerson = {...foundPerson, number:newNum};
+        services
+          .updatePerson(foundPerson.id, newPerson)
+          .then( person => {
+            setPersons(persons.map( person => person.id===newPerson.id? newPerson : person));
+            setNewName('');
+            setNewNum('');
+          })
+      }
     }
+
     else{
-      const newNameObj = {name: newName, number:newNum, id:persons.length+1};
-      setPersons(persons.concat(newNameObj));
-      setNewName('');
-      setNewNum('');
+      const newNameObj = {name: newName, number:newNum};
+      services
+        .addPerson(newNameObj)
+        .then( (newPerson) => {
+          setPersons(persons.concat(newPerson));
+          setNewName('');
+          setNewNum('');
+        })  
     }
   }
 
@@ -46,6 +59,15 @@ const App = () => {
 
   const handleSearchChange = (e)=>{
     setSearchName(e.target.value);
+  }
+
+  const handleDelete = (id) =>{
+    if (window.confirm(`Delete ${persons.find( person => person.id===id).name}?`)){
+      services.deletePerson(id).then( () => {
+        services.getAll()
+        .then(newPersons => setPersons(newPersons));
+      } );
+    }
   }
   
   const personsToShow = showAll
@@ -79,7 +101,7 @@ const App = () => {
       </form>
 
       <h2>Numbers</h2>
-      {personsToShow.map(person =><Person name={person.name} number={person.number} key={person.id}></Person>)}
+      {personsToShow.map(person =><Person name={person.name} number={person.number} key={person.id} onDelete={() => handleDelete(person.id)}></Person>)}
 
     </div>  
   );
